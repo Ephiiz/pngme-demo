@@ -25,6 +25,48 @@ impl TryFrom<&[u8]> for Png {
 
         let chunks: Vec<Chunk> = {
             // Need to find a way to loop until there is no chunks left
+            let mut list: Vec<Chunk> = Vec::new();
+
+            let mut i = 8;
+            while i < value.len() {
+                let length = {
+                    let mut buf = [0; 4];
+                    reader.read_exact(&mut buf);
+                    i += 4;
+                    u32::from_be_bytes(buf)
+                };
+                let chunk_type = {
+                    let mut buf = [0; 4];
+                    reader.read_exact(&mut buf);
+                    i += 4;
+                    ChunkType::try_from(buf)?
+                };
+
+                let mut message: Vec<u8> = Vec::new();
+                for _ in 0..length {
+                    let mut buf = [0; 1];
+                    reader.read_exact(&mut buf);
+                    i += 1;
+                    message.push(buf[0]);
+                }
+
+                let crc = {
+                    let mut buf = [0; 4];
+                    reader.read_exact(&mut buf);
+                    i += 4;
+                    u32::from_be_bytes(buf)
+                };
+
+                let gen_chunk = Chunk::new(chunk_type, message);
+                if gen_chunk.crc() != crc {
+                    return Err("crc invalid".into());
+                }
+                if !gen_chunk.is_valid() {
+                    return Err("invalid chunk".into());
+                }
+                list.push(gen_chunk);
+            }
+            list
         };
 
         Ok(Png { chunks: chunks })
