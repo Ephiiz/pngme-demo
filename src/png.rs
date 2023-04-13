@@ -19,7 +19,7 @@ impl TryFrom<&[u8]> for Png {
             reader.read_exact(&mut buf);
             buf
         };
-        if (_header != Self::STANDARD_HEADER) {
+        if _header != Self::STANDARD_HEADER {
             return Err("invalid header".into());
         }
 

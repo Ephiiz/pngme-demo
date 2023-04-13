@@ -31,7 +31,7 @@ impl TryFrom<[u8; 4]> for ChunkType {
     type Error = crate::Error;
     fn try_from(value: [u8; 4]) -> Result<Self, Self::Error> {
         for byte in value {
-            if (!byte.is_ascii_alphabetic()) {
+            if !byte.is_ascii_alphabetic() {
                 return Err("invalid ChunkType".into());
             }
         }
@@ -47,7 +47,7 @@ impl FromStr for ChunkType {
             let mut p: [u8; 4] = [0; 4];
             let mut i = 0;
             for char in s.bytes() {
-                if (char.is_ascii_alphabetic()) {
+                if char.is_ascii_alphabetic() {
                     p[i] = char;
                     i += 1;
                 } else {

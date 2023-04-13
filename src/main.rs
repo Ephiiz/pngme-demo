@@ -47,7 +47,7 @@ fn main() -> Result<()> {
         Command::Decode { file, chunk_type } => {
             println!("decode {:?} using type {}", file.as_path(), chunk_type);
             let pic = std::fs::read(file)?;
-            let mut png = Png::try_from(pic.as_slice())?;
+            let png = Png::try_from(pic.as_slice())?;
             let out = png.chunk_by_type(chunk_type.as_str());
             if out.is_some() {
                 println!("{}", out.unwrap());
