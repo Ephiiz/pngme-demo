@@ -1,7 +1,90 @@
-struct Png {}
+use crate::chunk::Chunk;
+use crate::chunk_type::ChunkType;
+use crate::Result;
+use std::fmt::Display;
+use std::io::BufReader;
+use std::io::Read;
+
+#[derive(Debug)]
+struct Png {
+    chunks: Vec<Chunk>,
+}
+
+impl TryFrom<&[u8]> for Png {
+    type Error = crate::Error;
+    fn try_from(value: &[u8]) -> Result<Self> {
+        let mut reader = BufReader::new(value);
+        let _header: [u8; 8] = {
+            let mut buf = [0; 8];
+            reader.read_exact(&mut buf);
+            buf
+        };
+        if (_header != Self::STANDARD_HEADER) {
+            return Err("invalid header".into());
+        }
+
+        let chunks: Vec<Chunk> = {
+            // Need to find a way to loop until there is no chunks left
+        };
+
+        Ok(Png { chunks: chunks })
+    }
+}
+impl Display for Png {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", &self)
+    }
+}
 
 impl Png {
     pub const STANDARD_HEADER: [u8; 8] = [137u8, 80u8, 78u8, 71u8, 13u8, 10u8, 26u8, 10u8];
+
+    pub fn from_chunks(chunks: Vec<Chunk>) -> Png {
+        Png { chunks }
+    }
+    pub fn append_chunk(&mut self, chunk: Chunk) {
+        self.chunks.push(chunk);
+    }
+    pub fn remove_chunk(&mut self, chunk_type: &str) -> crate::Result<Chunk> {
+        let mut i = 0;
+        for chunk in &self.chunks {
+            if chunk.chunk_type().to_string() == chunk_type {
+                return Ok(self.chunks.remove(i));
+            }
+            i += 1;
+        }
+        Err("no chunk of type found".into())
+    }
+    pub fn header(&self) -> &[u8; 8] {
+        &Self::STANDARD_HEADER
+    }
+    pub fn chunks(&self) -> &[Chunk] {
+        &self.chunks
+    }
+    pub fn chunk_by_type(&self, chunk_type: &str) -> Option<&Chunk> {
+        let mut i = 0;
+        for chunk in &self.chunks {
+            if chunk.chunk_type().to_string() == chunk_type {
+                return Some(chunk);
+            }
+            i += 1;
+        }
+        None
+    }
+    pub fn as_bytes(&self) -> Vec<u8> {
+        // Again with the Naive method but it works, will optimize later
+        let mut out: Vec<u8> = Vec::new();
+        for byte in Self::STANDARD_HEADER {
+            out.push(byte);
+        }
+        for chunk in &self.chunks {
+            for byte in chunk.as_bytes() {
+                out.push(byte);
+            }
+        }
+        println!("{:?}", &self.chunks);
+        out
+    }
 }
 
 #[cfg(test)]

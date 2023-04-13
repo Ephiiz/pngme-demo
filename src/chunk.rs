@@ -64,7 +64,7 @@ impl Display for Chunk {
 }
 
 impl Chunk {
-    fn new(chunk_type: ChunkType, data: Vec<u8>) -> Self {
+    pub fn new(chunk_type: ChunkType, data: Vec<u8>) -> Self {
         let mut p = Chunk {
             data_length: data.len() as u32,
             chunk_type: chunk_type,
@@ -74,36 +74,36 @@ impl Chunk {
         p.crc = p.crc();
         p
     }
-    fn is_valid(&self) -> bool {
+    pub fn is_valid(&self) -> bool {
         let p: bool = self.chunk_type.is_valid()
             && (self.data_length == self.message_bytes.len() as u32)
             && (self.crc == self.crc());
         p
     }
-    fn length(&self) -> u32 {
+    pub fn length(&self) -> u32 {
         self.data_length
     }
-    fn chunk_type(&self) -> &ChunkType {
+    pub fn chunk_type(&self) -> &ChunkType {
         &self.chunk_type
     }
-    fn data(&self) -> &[u8] {
+    pub fn data(&self) -> &[u8] {
         &self.message_bytes
     }
-    fn crc(&self) -> u32 {
+    pub fn crc(&self) -> u32 {
         let crc = Crc::<u32>::new(&CRC_32_ISO_HDLC);
         let mut digest = crc.digest();
         digest.update(&self.chunk_type.bytes());
         digest.update(&self.message_bytes.clone().as_slice());
         digest.finalize()
     }
-    fn data_as_string(&self) -> crate::Result<String> {
+    pub fn data_as_string(&self) -> crate::Result<String> {
         let mut out = String::new();
         for byte in &self.message_bytes {
             out.push(*byte as char);
         }
         Ok(out)
     }
-    fn as_bytes(&self) -> Vec<u8> {
+    pub fn as_bytes(&self) -> Vec<u8> {
         // Naive method, but it works i guess
         let mut out: Vec<u8> = self.data_length.to_be_bytes().iter().copied().collect();
         for byte in &self.chunk_type.bytes() {
