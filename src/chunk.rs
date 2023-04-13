@@ -67,7 +67,7 @@ impl Chunk {
     pub fn new(chunk_type: ChunkType, data: Vec<u8>) -> Self {
         let mut p = Chunk {
             data_length: data.len() as u32,
-            chunk_type: chunk_type,
+            chunk_type,
             message_bytes: data,
             crc: 0,
         };
@@ -93,7 +93,7 @@ impl Chunk {
         let crc = Crc::<u32>::new(&CRC_32_ISO_HDLC);
         let mut digest = crc.digest();
         digest.update(&self.chunk_type.bytes());
-        digest.update(&self.message_bytes.clone().as_slice());
+        digest.update(self.message_bytes.clone().as_slice());
         digest.finalize()
     }
     pub fn data_as_string(&self) -> crate::Result<String> {
@@ -105,7 +105,7 @@ impl Chunk {
     }
     pub fn as_bytes(&self) -> Vec<u8> {
         // Naive method, but it works i guess
-        let mut out: Vec<u8> = self.data_length.to_be_bytes().iter().copied().collect();
+        let mut out: Vec<u8> = self.data_length.to_be_bytes().to_vec();
         for byte in &self.chunk_type.bytes() {
             out.push(*byte);
         }

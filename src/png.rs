@@ -69,7 +69,7 @@ impl TryFrom<&[u8]> for Png {
             list
         };
 
-        Ok(Png { chunks: chunks })
+        Ok(Png { chunks })
     }
 }
 impl Display for Png {

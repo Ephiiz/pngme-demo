@@ -35,7 +35,7 @@ impl TryFrom<[u8; 4]> for ChunkType {
                 return Err("invalid ChunkType".into());
             }
         }
-        let t = ChunkType { value: value };
+        let t = ChunkType { value };
         Ok(t)
     }
 }
@@ -68,7 +68,7 @@ impl Display for ChunkType {
 
 impl ChunkType {
     pub fn bytes(&self) -> [u8; 4] {
-        self.value.clone()
+        self.value
     }
 
     pub fn is_valid(&self) -> bool {
