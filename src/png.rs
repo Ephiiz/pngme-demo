@@ -6,7 +6,7 @@ use std::io::BufReader;
 use std::io::Read;
 
 #[derive(Debug)]
-struct Png {
+pub struct Png {
     chunks: Vec<Chunk>,
 }
 
@@ -124,7 +124,6 @@ impl Png {
                 out.push(byte);
             }
         }
-        println!("{:?}", &self.chunks);
         out
     }
 }
